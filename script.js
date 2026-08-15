@@ -2,51 +2,48 @@ const API_KEY = "rc_live_43bac6e020f746ddb2f8b83cf61e3c8c";
 
 async function buscarPais() {
 
-    const valor = document.getElementById("pais").value;
+    let nome = document.getElementById("pais").value;
 
     let url;
 
-    if (valor.length == 3) {
-        url = `https://api.restcountries.com/countries/v5/codes.alpha_3/${valor.toUpperCase()}`;
+    if (nome.length == 3) {
+        url = `https://api.restcountries.com/countries/v5/codes.alpha_3/${nome.toUpperCase()}`;
     } else {
-        url = `https://api.restcountries.com/countries/v5/names.common/${valor}`;
+        url = `https://api.restcountries.com/countries/v5/names.common/${nome}`;
     }
 
-    const resposta = await fetch(url, {
+    let resp = await fetch(url, {
         headers: {
-            "Authorization": `Bearer ${API_KEY}`
+            'Authorization': `Bearer ${API_KEY}`
         }
     });
 
-    const dados = await resposta.json();
+    let dados = await resp.json();
 
-    if (!resposta.ok) {
-        document.getElementById("resultado").innerHTML = "<p>País não encontrado.</p>";
-        return;
-    }
-
-    const pais = dados.data.objects[0];
-
-    mostrarPais(pais);
+    mostrarPais(dados);
 }
 
 
-function mostrarPais(pais) {
+function mostrarPais(dados) {
 
-    const moedas = Object.values(pais.currencies)
-        .map(moeda => `${moeda.name} (${moeda.code})`)
+    let pais = dados.data.objects[0];
+
+    let moedas = Object.values(pais.currencies)
+        .map(moeda => moeda.name)
         .join(", ");
 
-    const idiomas = pais.languages
+    let idiomas = pais.languages
         .map(idioma => idioma.name)
         .join(", ");
 
-    let fronteiras = "Nenhuma";
+    let fronteiras = "";
 
     if (pais.borders) {
         fronteiras = pais.borders
             .map(codigo => `<button onclick="buscarPorCodigo('${codigo}')">${codigo}</button>`)
             .join("");
+    } else {
+        fronteiras = "Nenhuma";
     }
 
     document.getElementById("resultado").innerHTML = `
@@ -54,38 +51,31 @@ function mostrarPais(pais) {
 
         <img src="${pais.flag.url_png}" width="250">
 
-        <p>Continente: ${pais.continents.join(", ")}</p>
-
+        <p>Continente: ${pais.continents}</p>
         <p>Capital: ${pais.capitals[0].name}</p>
-
-        <p>Área: ${pais.area.kilometers.toLocaleString()} km²</p>
-
-        <p>População: ${pais.population.toLocaleString()}</p>
-
+        <p>Área: ${pais.area.kilometers} km²</p>
+        <p>População: ${pais.population}</p>
         <p>Moeda(s): ${moedas}</p>
-
         <p>Idioma(s): ${idiomas}</p>
 
         <p>Países que fazem fronteira:</p>
-
-        <div>${fronteiras}</div>
+        ${fronteiras}
     `;
 }
 
 
 async function buscarPorCodigo(codigo) {
 
-    const url = `https://api.restcountries.com/countries/v5/code?q=${codigo}`;
-
-    const resposta = await fetch(url, {
-        headers: {
-            "Authorization": `Bearer ${API_KEY}`
+    let resp = await fetch(
+        `https://api.restcountries.com/countries/v5/code?q=${codigo}`,
+        {
+            headers: {
+                'Authorization': `Bearer ${API_KEY}`
+            }
         }
-    });
+    );
 
-    const dados = await resposta.json();
+    let dados = await resp.json();
 
-    const pais = dados.data.objects[0];
-
-    mostrarPais(pais);
+    mostrarPais(dados);
 }
