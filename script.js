@@ -1,6 +1,5 @@
 const API_KEY = "rc_live_43bac6e020f746ddb2f8b83cf61e3c8c";
 
-
 async function buscarPais() {
 
     const valor = document.getElementById("pais").value;
